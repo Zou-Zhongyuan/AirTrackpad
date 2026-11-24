@@ -3,6 +3,7 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 import Foundation
 
+@MainActor
 public enum QRCodeGenerator {
     private static let sharedContext = CIContext(options: nil)
 
