@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AirTrackpad">
+  <meta name="theme-color" content="#000000">
+  <title>AirTrackpad</title>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main id="trackpad" aria-label="触控板区域"></main>
+
+  <div id="status-pill" class="status-pill" aria-live="polite"></div>
+
+  <button id="settings-btn" type="button" class="settings-btn" aria-label="打开设置">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.2.64.78 1.07 1.45 1.09H21a2 2 0 1 1 0 4h-.09c-.67.02-1.25.45-1.51 1Z"></path>
+    </svg>
+  </button>
+
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <div class="drawer-shell">
+      <header class="drawer-header">
+        <div>
+          <h1 id="settings-title">AirTrackpad 设置</h1>
+          <p id="conn-subtitle" class="conn-subtitle">正在初始化…</p>
+        </div>
+        <form method="dialog">
+          <button type="submit" class="close-btn" aria-label="关闭设置" autofocus>完成</button>
+        </form>
+      </header>
+
+      <div class="drawer-body">
+        <section class="card">
+          <div class="row">
+            <div class="conn-status">
+              <span id="conn-dot" class="conn-dot"></span>
+              <span id="conn-label">未连接</span>
+            </div>
+            <button id="reconnect-btn" type="button" class="pill-btn">立即重连</button>
+          </div>
+          <p id="conn-detail" class="hint"></p>
+          <div id="token-box" class="token-box" hidden>
+            <label for="token-input">配对 Token（可重新扫码）</label>
+            <div class="token-row">
+              <input id="token-input" type="text" placeholder="输入 32 位配对 Token" autocomplete="off" spellcheck="false">
+              <button id="save-token-btn" type="button" class="pill-btn">保存</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="control">
+            <div class="control-head">
+              <label for="pointer-sens">指针灵敏度</label>
+              <span id="pointer-sens-val" class="val">1.20x</span>
+            </div>
+            <input id="pointer-sens" type="range" min="0.5" max="2.5" step="0.05" value="1.2">
+          </div>
+
+          <label class="toggle-row">
+            <span>指针动态加速</span>
+            <input id="pointer-accel" type="checkbox" checked>
+          </label>
+
+          <div class="control">
+            <div class="control-head">
+              <label for="scroll-speed">双指滚动速度</label>
+              <span id="scroll-speed-val" class="val">1.00x</span>
+            </div>
+            <input id="scroll-speed" type="range" min="0.4" max="2.5" step="0.05" value="1.0">
+          </div>
+
+          <label class="toggle-row">
+            <span>自然滚动（与 Mac 触控板一致）</span>
+            <input id="natural-scroll" type="checkbox" checked>
+          </label>
+
+          <label class="toggle-row">
+            <span>四指左滑切右侧桌面</span>
+            <input id="natural-spaces" type="checkbox" checked>
+          </label>
+        </section>
+
+        <section class="card">
+          <div class="control">
+            <div class="control-head">
+              <label for="drag-relay">三指拖动抬指接力时长</label>
+              <span id="drag-relay-val" class="val">400 ms</span>
+            </div>
+            <input id="drag-relay" type="range" min="0" max="800" step="50" value="400">
+            <p class="hint">抬起三指后保留左键的时间，期间放回三指可接力续拖，单指轻点立即释放；设为 0 则关闭接力。</p>
+          </div>
+
+          <div class="control">
+            <label for="orientation-lock">方向锁定</label>
+            <select id="orientation-lock">
+              <option value="auto">自动跟随</option>
+              <option value="landscape-right">锁定横屏（Home条在右）</option>
+              <option value="landscape-left">锁定横屏（Home条在左）</option>
+              <option value="portrait">锁定竖屏</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="card">
+          <label class="toggle-row">
+            <span>显示手势提示胶囊</span>
+            <input id="feedback-pill" type="checkbox" checked>
+          </label>
+
+          <label class="toggle-row">
+            <span>尝试保持屏幕常亮</span>
+            <input id="keep-awake" type="checkbox">
+          </label>
+
+          <p class="hint">
+            手势速览：单指移动/轻点左键（双/三击） · 双指滚动/轻点右键/捏合缩放 · 三指拖动/轻点查词 · 四指左右切桌面/上滑调度中心/下滑 App Exposé/张开显示桌面/捏合启动台
+          </p>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

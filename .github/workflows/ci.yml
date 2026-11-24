@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check JS syntax & run gesture engine tests
+        run: |
+          node --check Web/gesture-engine.js
+          node --check Web/app.js
+          node --check docs/showcase.js
+          node --test Tests/js/gesture-engine.test.mjs
+
+      - name: Run Swift tests
+        run: swift test
+
+      - name: Build & verify macOS app bundle
+        run: |
+          ./scripts/build-app.sh
+          plutil -lint build/AirTrackpad.app/Contents/Info.plist
+          codesign --verify --deep --strict build/AirTrackpad.app

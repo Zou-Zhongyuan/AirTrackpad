@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>AirTrackpad — 把 iPhone 变成原生 Mac 触控板</title>
+  <meta name="description" content="零 iOS 客户端安装、纯轻触无需按压、三指 0.4s 抬指接力拖动、四指切屏与调度中心、120Hz 惯性滚动——由原生 Swift 6 菜单栏应用与 Safari 全屏 PWA 组成的 Mac 无线触控板。" />
+  <link rel="icon" type="image/png" href="./assets/icon-512.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="ambient-glow" aria-hidden="true"></div>
+
+  <header class="site-nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand">
+        <img src="./assets/icon-512.png" alt="AirTrackpad 图标" width="28" height="28" />
+        <span>AirTrackpad</span>
+      </a>
+      <nav class="nav-links" aria-label="主导航">
+        <a href="#gestures">手势交互</a>
+        <a href="#playground">在线演示</a>
+        <a href="#blog">工程博客</a>
+        <a href="#quickstart">安装指南</a>
+        <a href="https://github.com/Zou-Zhongyuan/AirTrackpad" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <img src="./assets/icon-512.png" alt="AirTrackpad 应用图标" class="hero-icon" width="104" height="104" />
+        <div class="hero-badges">
+          <span class="badge">macOS 14+ · Apple Silicon</span>
+          <span class="badge">Swift 6 零第三方依赖</span>
+          <span class="badge">iPhone Safari 全屏 PWA</span>
+          <span class="badge accent">v1.0.0 开源发布</span>
+        </div>
+        <h1>让 iPhone 像 Mac 触控板一样自然</h1>
+        <p class="hero-lead">
+          专为不喜欢重度按压触控板、又想在手机上获得完整 macOS 手势肌肉记忆而造。
+          <strong>无需在 iPhone 安装任何 App</strong>，扫码添加到主屏幕即全屏可用：
+          三指短暂抬指接力拖动、四指切换桌面、调度中心、App Exposé、120Hz 惯性自然滚动与双指捏合缩放一次配齐。
+        </p>
+
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/Zou-Zhongyuan/AirTrackpad/releases/latest" target="_blank" rel="noopener">
+            下载 macOS v1.0.0
+          </a>
+          <a class="btn btn-secondary" href="https://github.com/Zou-Zhongyuan/AirTrackpad" target="_blank" rel="noopener">
+            查看 GitHub 源码
+          </a>
+          <a class="btn btn-ghost" href="#blog">
+            阅读开发手记
+          </a>
+        </div>
+
+        <div class="highlights-grid">
+          <div class="highlight-card">
+            <div class="hl-kicker">零安装无过期</div>
+            <div class="hl-title">Safari 全屏 PWA</div>
+            <p>告别免费开发者证书 7 天重签烦恼，动态 Manifest 持久化配对 Token，下次从桌面打开秒连。</p>
+          </div>
+          <div class="highlight-card">
+            <div class="hl-kicker">0.4s 抬指接力</div>
+            <div class="hl-title">原汁原味三指拖动</div>
+            <p>小屏幕跨屏拖拽不用屏住呼吸一口气拖完：抬起三指保留约 0.4 秒左键，放回即续拖，轻点秒放。</p>
+          </div>
+          <div class="highlight-card">
+            <div class="hl-kicker">极简 OLED 黑底</div>
+            <div class="hl-title">99% 纯触控面积</div>
+            <p>防误触纯黑界面配合相对软件方向锁定，手机开启竖屏锁定时横放桌面依然指哪打哪。</p>
+          </div>
+          <div class="highlight-card">
+            <div class="hl-kicker">局域网 / 热点 / USB</div>
+            <div class="hl-title">低延迟单端口直连</div>
+            <p>原生 Network.framework 手写 RFC 6455，自动切换 <code>.local</code> 与热点 <code>172.20.10.x</code> 直连。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gesture Matrix -->
+    <section id="gestures" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>1 ~ 4 指完整触控板手势</h2>
+          <p>全程纯轻触与滑动触发，无需物理按压触控板。</p>
+        </div>
+
+        <div class="gesture-grid">
+          <article class="g-card">
+            <div class="g-fingers">1 指</div>
+            <h3>移动 · 单/双/三击</h3>
+            <ul>
+              <li><strong>移动：</strong>非线性加速曲线 + 多屏负坐标安全边界夹紧</li>
+              <li><strong>轻点：</strong>左键点击，支持连续双击选词、三击选段</li>
+              <li><strong>防抖：</strong><code>230ms</code> 轻点保护，手指面积微抖不吞点击</li>
+            </ul>
+          </article>
+
+          <article class="g-card">
+            <div class="g-fingers">2 指</div>
+            <h3>右键 · 惯性滚动 · 缩放</h3>
+            <ul>
+              <li><strong>轻点：</strong>右键上下文菜单</li>
+              <li><strong>滑动：</strong>亚像素余数累加 + Mac 端 120Hz 指数衰减惯性滚动</li>
+              <li><strong>捏合 / 张开：</strong>原生手势缩放网页、PDF 与图片（附 IOHID 与快捷键切换）</li>
+            </ul>
+          </article>
+
+          <article class="g-card featured">
+            <div class="g-fingers">3 指</div>
+            <h3>三指拖动 + 0.4s 接力 · 查词</h3>
+            <ul>
+              <li><strong>拖动：</strong>强制重置 <code>clickState = 1</code>，绝不误触发双击拖选</li>
+              <li><strong>抬指接力：</strong>抬指后延迟约 <code>0.4s</code> 释放（`0–800ms` 可调），放回三指无缝续拖</li>
+              <li><strong>轻点：</strong>系统级 Look Up 查词（<code>Ctrl + ⌘ + D</code>）</li>
+            </ul>
+          </article>
+
+          <article class="g-card">
+            <div class="g-fingers">4 指</div>
+            <h3>桌面空间 · 调度 · 启动台</h3>
+            <ul>
+              <li><strong>左右扫：</strong>切换全屏应用与桌面空间（默认自然方向，可反转）</li>
+              <li><strong>上滑 / 下滑：</strong>调度中心 Mission Control / App Exposé</li>
+              <li><strong>张开 / 捏合：</strong>显示桌面 / 打开启动台（兼容 Tahoe Apps）</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Playground -->
+    <section id="playground" class="section alt-surface">
+      <div class="container">
+        <div class="section-head">
+          <h2>交互式手势与 0.4s 接力原理演示</h2>
+          <p>点击下方任意演示预设，或在右侧黑色触控板区域直接滑动体验实时事件流（电脑端可直接拖动 / 滚轮观察状态输出）。</p>
+        </div>
+
+        <div class="playground-shell">
+          <div class="playground-controls">
+            <div class="preset-list" role="tablist" aria-label="手势演示预设">
+              <button type="button" class="preset-btn active" data-preset="drag-relay">
+                <strong>三指拖动 + 0.4s 接力</strong>
+                <span>拖拽中抬指 → 保持左键 400ms → 放回三指无缝续拖</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="swipe4">
+                <strong>四指左右切桌面 / 调度中心</strong>
+                <span>错峰落指防误触，到达阈值后锁定直到全指抬起</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="pinch-scroll">
+                <strong>双指滚动 vs 捏合缩放消歧</strong>
+                <span>依据指距变化与质心位移比自动区分滚动与缩放</span>
+              </button>
+              <button type="button" class="preset-btn" data-preset="orientation">
+                <strong>相对软件方向锁定</strong>
+                <span>结合视口宽高与屏幕角度计算差值，告别二次旋转 Bug</span>
+              </button>
+            </div>
+
+            <div class="telemetry-box">
+              <div class="telemetry-head">
+                <span>Mac 端实时接收事件</span>
+                <code id="demo-state-badge">STATE: THREE_DRAG</code>
+              </div>
+              <pre id="demo-log" aria-live="polite"></pre>
+            </div>
+          </div>
+
+          <div class="phone-frame">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <div id="demo-pad" class="demo-pad" tabindex="0" aria-label="交互式触控板演示区">
+              <div id="demo-pill" class="demo-pill">演示：三指拖动接力</div>
+              <div id="demo-fingers" class="demo-fingers"></div>
+              <div id="demo-relay-ring" class="demo-relay-ring" hidden>
+                <span id="demo-relay-text">接力保留左键 400ms</span>
+              </div>
+              <div class="demo-pad-hint">点击左侧手势场景观看动效，或在此黑底区域移动鼠标体验指针与滚轮映射</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Engineering Blog Post -->
+    <section id="blog" class="section">
+      <div class="container blog-container">
+        <article class="blog-article">
+          <header class="blog-header">
+            <div class="blog-meta">个人开源作品手记 · macOS / Swift 6 / Multi-Touch PWA</div>
+            <h2>从 Unified Remote 到自研 AirTrackpad：如何用 Swift 与 Safari PWA 复刻 Mac 原生触控板手感</h2>
+            <p class="blog-intro">
+              这是一篇完整的工程复盘——记录我为什么决定重写一套无线触控板方案，以及如何在零第三方依赖的前提下，解决多指状态机消歧、三指抬指接力、Safari PWA 方向锁定和 macOS 26 Tahoe 底层接口兼容等真实工程问题。
+            </p>
+          </header>
+
+          <h3>一、痛点：为什么现有方案总差一口气？</h3>
+          <p>
+            平时我几乎不把 Mac 触控板用力按下去，全部操作都靠「轻点点击 + 双指滚动/缩放 + 三指拖动 + 四指切屏/调度中心」完成。
+            之前使用 Unified Remote 时，虽然基础移动与点击很稳，但在操作习惯上更像遥控鼠标：没有原生三指拖动的顺滑感，四指空间手势和调度中心也需要自己拼凑快捷键，始终跟 Mac 触控板隔着一层。
+          </p>
+          <p>
+            如果为 iPhone 写一个原生 Swift App，虽然能直接用 UITouch 硬件采样，但个人开发者账号每次编译安装都有 7 天证书过期的维护负担。
+            把手机端做成 <strong>Safari 全屏 PWA</strong>，把复杂且耗性能的惯性衰减、亚像素累加、原生事件合成留在 <strong>Mac 原生菜单栏 App</strong>，反而是体验和可维护性的最佳平衡点。
+          </p>
+
+          <h3>二、iPhone 触控板 UI 的克制：99% 纯黑 + 相对软件方向锁定</h3>
+          <p>
+            手机屏幕比妙控板小很多，如果顶部或底部摆满功能按钮，四指扫屏时极易误触。因此触控端刻意只保留了一块 <code>100dvh</code> 的 OLED 纯黑区域（<code>touch-action: none</code>），只在右上角安全区外留一个极低对比度的小齿轮按钮。
+          </p>
+          <p>
+            横放手机可以极大扩展三指和四指的横向操作空间，但很多用户平时会在 iPhone 控制中心开启「竖屏方向锁定」。
+            我们在软件层加入了「锁定横屏（Home 条在右/左）」选项，并且专门解决了早期原型中的<strong>二次旋转陷阱</strong>：
+            手势引擎不再盲目旋转 ±90°，而是读取当前视口宽高比与 <code>screen.orientation.angle</code>，仅当「目标锁定方向」与「系统当前实际视口方向」不一致时才做相对角度补偿。
+          </p>
+
+          <h3>三、魔鬼在细节里：状态机里的 4 个真实坑</h3>
+          <ul>
+            <li>
+              <strong>1. 错峰落指（Staggered Landing）：</strong>
+              人类四指落屏并不是绝对同一毫秒，往往横跨 40~80ms。状态机必须通过 <code>MAYBE_ONE → MAYBE_TWO → MAYBE_THREE → MAYBE_FOUR</code> 的宽限窗口平滑晋升，才能保证四指切换桌面时不会先误触发一帧光标移动或三指左键按下。
+            </li>
+            <li>
+              <strong>2. 轻点微抖动防吞（230ms Guard）：</strong>
+              真实电容屏在手指轻点按下的 60~120ms 之间，因为指腹受压形变，几乎必然伴随 1~3px 的 <code>touchmove</code> 抖动。若过早按时间阈值切入移动态，轻点就会被直接吞掉；将时间晋升阈值与轻点判定窗口对齐（<code>230ms</code>）而位移阈值保持 <code>5px</code>，既保留零延迟拖动起手，又让快速轻点百发百中。
+            </li>
+            <li>
+              <strong>3. 三指拖动「0.4s 抬指接力」：</strong>
+              手机屏宽有限，选长文本或拖窗口到屏幕边缘常需要把手指抬起来换个位置继续拖。抬起三指后客户端启动可调定时器（默认 400ms）暂缓发送 <code>dragEnd</code>：期间三指放回立即取消定时器续拖；单指轻点则立即 flush <code>dragEnd</code> 并吞掉这次轻点；若网络断开或心跳超时（5s），Mac 端也会按 <code>clientID</code> 自动释放左键，绝不出现左键卡死。
+            </li>
+            <li>
+              <strong>4. 幽灵触点与 Touch ID 轮换防跳变：</strong>
+              iOS Safari 在四指贴边或系统弹窗时偶尔会丢失个别手指的 <code>touchend</code>。手势引擎每帧同步原生 <code>event.touches</code> 全量集合来自动清除幽灵触点；同时记录当前手势绑定的 <code>activeTupleIds</code>，当掌心误触导致三指或双指 ID 组发生变化时重置基线而不发出单帧大跳变。
+            </li>
+          </ul>
+
+          <h3>四、macOS 底层合成与 Tahoe (macOS 26) 避坑记录</h3>
+          <ul>
+            <li>
+              <strong>隔离修饰键状态：</strong>
+              全程使用 <code>CGEventSource(stateID: .privateState)</code>，避免 Mac 实体键盘正按着的 Shift/Option 污染手机端合成事件；三指拖动开始时显式设置 <code>kCGMouseEventClickState = 1</code>，防止刚单击完紧接着三指拖动时被系统当成双击拖选。
+            </li>
+            <li>
+              <strong>亚像素滚动累加与 120Hz 惯性：</strong>
+              <code>CGEvent(scrollWheelEvent2Source:units:.pixel)</code> 接收整型像素，直接强转会在慢速双指滑动时丢失小于 1px 的增量。通过 Swift 端浮点余数累加器配合 120Hz <code>DispatchSourceTimer</code> 指数衰减惯性循环，同时动态写入 <code>field 137</code>（自然滚动标志位），获得媲美原生触控板的阻尼感。
+            </li>
+            <li>
+              <strong>CoreDockNotification 与 TN3179 隐私规避：</strong>
+              实测 macOS 26 Tahoe 上，系统自带的 <code>Apps.app</code> 与 <code>Dock.app</code> 依然使用 <code>CoreDockSendNotification</code>（包括 <code>com.apple.launchpad.toggle</code>、<code>com.apple.expose.awake</code> 等），不依赖系统是否开启触控板 App Exposé 开关；而在网络层刻意<strong>不注册 Bonjour 服务</strong>，仅监听普通 TCP 入站连接并由系统 <code>mDNSResponder</code> 广播 <code>.local</code>，从而完美避开 Apple TN3179 指出的 ad-hoc 签名本地网络权限拦截问题。
+            </li>
+          </ul>
+
+          <h3>五、如何直接用起来</h3>
+          <p>
+            整个项目已以 MIT 协议完整开源：Mac 端仅依赖系统框架（SwiftPM 零外部依赖），Web 端为纯 ES Module 零构建工具链。
+            你可以直接从 GitHub Releases 下载打包好的应用体验，也可以克隆源码在本地仅凭 Xcode Command Line Tools 一分钟构建属于自己的专属版本。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Quick Start & FAQ -->
+    <section id="quickstart" class="section alt-surface">
+      <div class="container">
+        <div class="section-head">
+          <h2>5 分钟上手与常见问题</h2>
+        </div>
+
+        <div class="faq-grid">
+          <div class="faq-card">
+            <h3>1. 安装与首次运行</h3>
+            <p>下载 <a href="https://github.com/Zou-Zhongyuan/AirTrackpad/releases/latest" target="_blank" rel="noopener">AirTrackpad-v1.0.0-macOS-arm64.zip</a> 解压拖入「应用程序」。因使用本地 ad-hoc 签名，首次运行请执行：</p>
+            <pre><code>xattr -cr /Applications/AirTrackpad.app
+open /Applications/AirTrackpad.app</code></pre>
+          </div>
+
+          <div class="faq-card">
+            <h3>2. 授予一次性辅助功能权限</h3>
+            <p>点击顶部菜单栏触控板图标，按提示点击「授权辅助功能」，在「系统设置 → 隐私与安全性 → 辅助功能」勾选 <code>AirTrackpad</code> 即可。支持打开「开机自启」。</p>
+          </div>
+
+          <div class="faq-card">
+            <h3>3. 校园网 / 个人热点打不开 .local？</h3>
+            <p>部分校园网会屏蔽 mDNS 组播，而 iPhone 个人热点（Wi-Fi / USB 共享）则使用固定的 <code>172.20.10.x</code> 网段。只需在 Mac 弹窗「连接地址」条里点选对应 IPv4 胶囊后再扫码即可直连。</p>
+          </div>
+
+          <div class="faq-card">
+            <h3>4. 某款软件无法双指捏合缩放？</h3>
+            <p>不同软件对合成缩放事件的解析不同。展开 Mac 弹窗底部的「诊断与自测」，可在「捏合缩放引擎」中切换 <code>原生手势</code>、<code>IOHID 缩放</code> 或 <code>⌘+/⌘-</code>，并立即用内置自测按钮验证。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>AirTrackpad</strong> · Built by
+        <a href="https://github.com/Zou-Zhongyuan" target="_blank" rel="noopener">Zhongyuan Zou</a>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/Zou-Zhongyuan/AirTrackpad" target="_blank" rel="noopener">GitHub 仓库</a>
+        <a href="https://github.com/Zou-Zhongyuan/AirTrackpad/releases/latest" target="_blank" rel="noopener">下载 Release</a>
+        <a href="https://github.com/Zou-Zhongyuan/AirTrackpad/blob/main/docs/blog-post.md" target="_blank" rel="noopener">Markdown 博客原文</a>
+        <a href="https://github.com/Zou-Zhongyuan/AirTrackpad/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="./showcase.js"></script>
+</body>
+</html>
