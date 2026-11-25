@@ -124,7 +124,11 @@ public final class InputSynthesizer: @unchecked Sendable {
 
     public func setPinchEngine(_ engine: PinchEngine) {
         queue.async { [weak self] in
-            self?.currentPinchEngine = engine
+            guard let self else { return }
+            if self.isPinching && self.currentPinchEngine != engine {
+                self.pinchEndLocked()
+            }
+            self.currentPinchEngine = engine
         }
     }
 
@@ -697,22 +701,11 @@ public final class InputSynthesizer: @unchecked Sendable {
         pinchOwner = clientID
         shortcutAccumulatedDelta = 0
 
-        switch currentPinchEngine {
-        case .nativeType29:
-            postType29PinchEvent(f110: 61, f113: nil, f132: 1, iohidScale: nil, iohidPhase: nil)
-            postType29PinchEvent(f110: 8, f113: 0.0, f132: 1, iohidScale: nil, iohidPhase: nil)
-
-        case .iohidScale:
-            if symbols.hasIOHIDScaleSupport {
-                postType29PinchEvent(f110: 61, f113: nil, f132: 1, iohidScale: nil, iohidPhase: nil)
-                postType29PinchEvent(f110: 8, f113: 0.0, f132: 1, iohidScale: 1.0, iohidPhase: 1)
-            } else {
-                postType29PinchEvent(f110: 61, f113: nil, f132: 1, iohidScale: nil, iohidPhase: nil)
-                postType29PinchEvent(f110: 8, f113: 0.0, f132: 1, iohidScale: nil, iohidPhase: nil)
-            }
-
-        case .shortcutFallback:
-            break
+        for spec in PinchGestureSequence.beginEvents(
+            engine: currentPinchEngine,
+            hasIOHIDScaleSupport: symbols.hasIOHIDScaleSupport
+        ) {
+            postType29PinchEvent(spec)
         }
     }
 
@@ -723,15 +716,13 @@ public final class InputSynthesizer: @unchecked Sendable {
         }
 
         switch currentPinchEngine {
-        case .nativeType29:
-            postType29PinchEvent(f110: 8, f113: delta, f132: 2, iohidScale: nil, iohidPhase: nil)
-
-        case .iohidScale:
-            if symbols.hasIOHIDScaleSupport {
-                let scale = max(0.2, 1.0 + delta)
-                postType29PinchEvent(f110: 8, f113: delta, f132: 2, iohidScale: scale, iohidPhase: 2)
-            } else {
-                postType29PinchEvent(f110: 8, f113: delta, f132: 2, iohidScale: nil, iohidPhase: nil)
+        case .nativeType29, .iohidScale:
+            for spec in PinchGestureSequence.changeEvents(
+                delta: delta,
+                engine: currentPinchEngine,
+                hasIOHIDScaleSupport: symbols.hasIOHIDScaleSupport
+            ) {
+                postType29PinchEvent(spec)
             }
 
         case .shortcutFallback:
@@ -754,32 +745,16 @@ public final class InputSynthesizer: @unchecked Sendable {
         pinchOwner = nil
         shortcutAccumulatedDelta = 0
 
-        switch currentPinchEngine {
-        case .nativeType29:
-            postType29PinchEvent(f110: 8, f113: 0.0, f132: 4, iohidScale: nil, iohidPhase: nil)
-            postType29PinchEvent(f110: 62, f113: nil, f132: 4, iohidScale: nil, iohidPhase: nil)
-
-        case .iohidScale:
-            if symbols.hasIOHIDScaleSupport {
-                postType29PinchEvent(f110: 8, f113: 0.0, f132: 4, iohidScale: 1.0, iohidPhase: 4)
-                postType29PinchEvent(f110: 62, f113: nil, f132: 4, iohidScale: nil, iohidPhase: nil)
-            } else {
-                postType29PinchEvent(f110: 8, f113: 0.0, f132: 4, iohidScale: nil, iohidPhase: nil)
-                postType29PinchEvent(f110: 62, f113: nil, f132: 4, iohidScale: nil, iohidPhase: nil)
-            }
-
-        case .shortcutFallback:
-            break
+        for spec in PinchGestureSequence.endEvents(
+            engine: currentPinchEngine,
+            hasIOHIDScaleSupport: symbols.hasIOHIDScaleSupport
+        ) {
+            postType29PinchEvent(spec)
         }
     }
 
-    private func postType29PinchEvent(
-        f110: Int64,
-        f113: Double?,
-        f132: Int64,
-        iohidScale: Double?,
-        iohidPhase: UInt32?
-    ) {
+    private func postType29PinchEvent(_ spec: Type29GestureEvent) {
+        guard spec.isSafeForWindowServer else { return }
         guard let ev = CGEvent(source: eventSource),
               let type29 = CGEventType(rawValue: 29) else { return }
 
@@ -789,17 +764,17 @@ public final class InputSynthesizer: @unchecked Sendable {
             ev.setIntegerValueField(f55, value: 29)
         }
         if let field110 = CGEventField(rawValue: 110) {
-            ev.setIntegerValueField(field110, value: f110)
+            ev.setIntegerValueField(field110, value: spec.f110)
         }
-        if let f113, let field113 = CGEventField(rawValue: 113) {
+        if let f113 = spec.f113, let field113 = CGEventField(rawValue: 113) {
             ev.setDoubleValueField(field113, value: f113)
         }
         if let field132 = CGEventField(rawValue: 132) {
-            ev.setIntegerValueField(field132, value: f132)
+            ev.setIntegerValueField(field132, value: spec.f132)
         }
 
-        if let iohidScale,
-           let iohidPhase,
+        if let iohidScale = spec.iohidScale,
+           let iohidPhase = spec.iohidPhase,
            let createScale = symbols.createScaleEvent,
            let setPhase = symbols.setIOHIDPhase,
            let setSLEvent = symbols.setSLEventIOHIDEvent,
