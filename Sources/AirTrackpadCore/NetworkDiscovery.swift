@@ -93,23 +93,24 @@ public struct NetworkSnapshot: Sendable, Equatable {
             }
         }
 
+        for iface in interfaces where !iface.isHotspotOrUSB {
+            let badge = (!self.hasHotspotOrUSB && options.isEmpty) ? "推荐直连" : iface.name
+            appendOption(AddressOption(
+                host: iface.ip,
+                label: iface.displayLabel,
+                badge: badge,
+                isHotspotOrUSB: false,
+                isMDNS: false
+            ))
+        }
+
         if let mdns {
             appendOption(AddressOption(
                 host: mdns,
                 label: mdns,
-                badge: self.hasHotspotOrUSB ? "局域网" : "推荐 .local",
+                badge: options.isEmpty ? "mDNS" : "mDNS 备选",
                 isHotspotOrUSB: false,
                 isMDNS: true
-            ))
-        }
-
-        for iface in interfaces where !iface.isHotspotOrUSB {
-            appendOption(AddressOption(
-                host: iface.ip,
-                label: iface.displayLabel,
-                badge: iface.name,
-                isHotspotOrUSB: false,
-                isMDNS: false
             ))
         }
 

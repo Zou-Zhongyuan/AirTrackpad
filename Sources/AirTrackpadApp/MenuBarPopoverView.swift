@@ -4,6 +4,8 @@ import SwiftUI
 
 @MainActor
 public final class AppState: ObservableObject {
+    private static let pinnedHostDefaultsKey = "AirTrackpad.PinnedHost"
+
     @Published public var connectedClientCount: Int = 0
     @Published public var port: UInt16 = TokenStore.defaultPort {
         didSet {
@@ -37,20 +39,40 @@ public final class AppState: ObservableObject {
 
     public private(set) var pairingQRImage: NSImage?
     private var cachedPairingQRURL: String?
+    private let defaults: UserDefaults
 
     public init(
         port: UInt16 = TokenStore.defaultPort,
         token: String = "",
-        selectedHost: String = "127.0.0.1"
+        selectedHost: String = "127.0.0.1",
+        defaults: UserDefaults = .standard
     ) {
+        self.defaults = defaults
         self.port = port
         self.token = token
-        self.selectedHost = selectedHost
+        if let savedHost = defaults.string(forKey: Self.pinnedHostDefaultsKey)?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !savedHost.isEmpty {
+            self.selectedHost = savedHost
+            self.userPinnedHost = true
+        } else {
+            self.selectedHost = selectedHost
+        }
         refreshPairingQRIfNeeded()
     }
 
     public var pairingURL: String {
         "http://\(selectedHost):\(port)/?token=\(token)"
+    }
+
+    public func selectHost(_ host: String) {
+        selectedHost = host
+        if host == networkSnapshot.preferredHost {
+            userPinnedHost = false
+            defaults.removeObject(forKey: Self.pinnedHostDefaultsKey)
+        } else {
+            userPinnedHost = true
+            defaults.set(host, forKey: Self.pinnedHostDefaultsKey)
+        }
     }
 
     public func applyNetworkSnapshot(_ snapshot: NetworkSnapshot) {
@@ -64,7 +86,11 @@ public final class AppState: ObservableObject {
             }
             if userPinnedHost {
                 userPinnedHost = false
+                defaults.removeObject(forKey: Self.pinnedHostDefaultsKey)
             }
+        } else if userPinnedHost && selectedHost == snapshot.preferredHost {
+            userPinnedHost = false
+            defaults.removeObject(forKey: Self.pinnedHostDefaultsKey)
         }
     }
 
@@ -251,8 +277,7 @@ public struct MenuBarPopoverView: View {
     private func addressPill(_ option: AddressOption) -> some View {
         let isSelected = state.selectedHost == option.host
         return Button {
-            state.selectedHost = option.host
-            state.userPinnedHost = true
+            state.selectHost(option.host)
         } label: {
             HStack(spacing: 4) {
                 Text(option.host)

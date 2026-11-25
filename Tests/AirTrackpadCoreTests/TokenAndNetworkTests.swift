@@ -66,15 +66,19 @@ struct TokenAndNetworkTests {
         #expect(!filtered[1].isHotspotOrUSB)
     }
 
-    @Test func networkSnapshotPrefersLocalWithoutHotspotAndIPWithHotspot() {
+    @Test func networkSnapshotPrefersDirectIPv4OverMDNS() {
         let wifiOnly = NetworkSnapshot(
             localHostName: "My-MacBook-Pro",
             interfaces: [NetworkInterfaceInfo(name: "en0", ip: "192.168.1.25")]
         )
         #expect(!wifiOnly.hasHotspotOrUSB)
         #expect(wifiOnly.mdnsHost == "My-MacBook-Pro.local")
-        #expect(wifiOnly.preferredHost == "My-MacBook-Pro.local")
-        #expect(wifiOnly.addressOptions.map(\.host) == ["My-MacBook-Pro.local", "192.168.1.25"])
+        #expect(wifiOnly.preferredHost == "192.168.1.25")
+        #expect(wifiOnly.addressOptions.map(\.host) == ["192.168.1.25", "My-MacBook-Pro.local"])
+        #expect(wifiOnly.addressOptions[0].badge == "推荐直连")
+        #expect(!wifiOnly.addressOptions[0].isMDNS)
+        #expect(wifiOnly.addressOptions[1].badge == "mDNS 备选")
+        #expect(wifiOnly.addressOptions[1].isMDNS)
 
         let withHotspot = NetworkSnapshot(
             localHostName: "My-MacBook-Pro",
@@ -86,8 +90,19 @@ struct TokenAndNetworkTests {
         #expect(withHotspot.hasHotspotOrUSB)
         #expect(withHotspot.preferredHost == "172.20.10.4")
         #expect(
-            withHotspot.addressOptions.map(\.host) == ["172.20.10.4", "My-MacBook-Pro.local", "192.168.1.25"]
+            withHotspot.addressOptions.map(\.host) == ["172.20.10.4", "192.168.1.25", "My-MacBook-Pro.local"]
         )
+        #expect(withHotspot.addressOptions[0].badge == "热点/USB 推荐")
+        #expect(withHotspot.addressOptions[1].badge == "en0")
+        #expect(withHotspot.addressOptions[2].badge == "mDNS 备选")
+
+        let mdnsOnly = NetworkSnapshot(
+            localHostName: "My-MacBook-Pro",
+            interfaces: []
+        )
+        #expect(mdnsOnly.preferredHost == "My-MacBook-Pro.local")
+        #expect(mdnsOnly.addressOptions.map(\.host) == ["My-MacBook-Pro.local"])
+        #expect(mdnsOnly.addressOptions[0].badge == "mDNS")
 
         let offline = NetworkSnapshot(localHostName: nil, interfaces: [])
         #expect(offline.preferredHost == "127.0.0.1")

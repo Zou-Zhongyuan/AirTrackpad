@@ -286,8 +286,8 @@ open /Applications/AirTrackpad.app</code></pre>
           </div>
 
           <div class="faq-card">
-            <h3>3. 校园网 / 个人热点打不开 .local？</h3>
-            <p>部分校园网会屏蔽 mDNS 组播，而 iPhone 个人热点（Wi-Fi / USB 共享）则使用固定的 <code>172.20.10.x</code> 网段。只需在 Mac 弹窗「连接地址」条里点选对应 IPv4 胶囊后再扫码即可直连。</p>
+            <h3>3. 校园网 / 个人热点 / VPN 下怎么连接更稳定？</h3>
+            <p>部分校园网或手机代理 / VPN 会拦截或异常解析 <code>.local</code>（mDNS 组播）。AirTrackpad 默认优先使用直连 IPv4（热点 / USB 共享优先 <code>172.20.10.x</code>，Wi-Fi 优先 <code>en0</code> 局域网 IP），开箱即连；若家用路由器常变动 IP，也可在弹窗里点选 <code>.local</code>（mDNS 备选）。</p>
           </div>
 
           <div class="faq-card">
